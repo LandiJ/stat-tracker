@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="main.css" rel="stylesheet">
+</head>
+
+<body>
+
+
+
+
+    <div class="user">
+
+        {{#user}}
+        <div class="dropdown">
+            <button class="dropbtn">Logged in as {{user.name}}</button>
+            <div class="dropdown-content">
+                <a href="./login">Login</a> <br>
+                <a href="./in">Profile</a><br>
+                <a href="./signup">Signup</a><br>
+                <a href="./index">
+                    <form action="/logout" method="post">
+
+                        <input class="submit" type="submit" value="Logout">
+
+                    </form>
+                </a>
+            </div>
+        </div>
+        {{/user}} {{^user}}
+
+        <h3>No user logged in</h3>
+        {{/user}}
+        <h3>
+    </div>
+
+    <h1 class="index_header">Stat Tracker</h1>
+
+
+
+    <div class="login">
+
+
+        <form action="/login" method="post">
+            <label for="">name:</label>
+            <input class="input" type="text" name="name"><br>
+
+            <label for="">Password:</label>
+            <input class="input" type="password" name="password"><br>
+            <input class="submit" type="submit" value="Login">
+
+        </form>
+
+    </div>
+
+
+
+
+
+
+    <a href="./login"><input type="button" value ="Login"></a> <br>
+    <a href="./profile"><input type="button" value ="Profile"></a><br>
+    <a href="./signup"><input type="button" value ="Signup"></a><br>
+    <form action="/logout" method="post">
+
+        <input type="submit" value="Logout">
+
+    </form>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+
+    <div class="user">
+
+        {{#user}}
+        <div class="dropdown">
+            <button class="dropbtn">Logged in as {{user.name}}</button>
+            <div class="dropdown-content">
+                <a href="./login">Login</a> <br>
+                <a href="./in">Profile</a><br>
+                <a href="./signup">Signup</a><br>
+                <a href="./index">
+                    <form action="/logout" method="post">
+
+                        <input class="submit" type="submit" value="Logout">
+
+                    </form>
+                </a>
+            </div>
+        </div>
+        {{/user}} {{^user}}
+
+        <h3>No user logged in</h3>
+        {{/user}}
+        <h3>
+    </div>
+    <h1>Profile</h1>
+    <form action="/activities/:userid" method="post">
+        <label for="">Name of Activity</label>
+        <input type="text" name="title">
+
+
+        <input type="submit" value="add activity">
+
+    </form>
+
+    {{#activities}}{{title}}
+    <form action="/add-stats/{{_id}}" method="post">
+        <input type="hidden" name="id" value="{{_id}}">
+        <input type="submit" value="add stats">
+    </form>
+
+
+    {{/activities}}
+
+</body>
+
+</html>
