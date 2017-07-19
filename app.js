@@ -5,7 +5,6 @@ const models = require("./models");
 const mongoose = require("mongoose");
 mongoose.Promise = require("bluebird");
 const dbURL = "mongodb://localhost:27017/tracker";
-const login = require("./routes/login");
 const session = require("express-session");
 const sessionConfig = require("./sessionConfig");
 
@@ -25,10 +24,11 @@ app.use(morgan("dev"));
 app.use(session(sessionConfig));
 app.use(expressValidator());
 
-login(app);
+// login(app);
 
-var User = require("./models/User");
+var Activity = require("./models/Activity");
 var activity;
+var activityInfo;
 
 mongoose.connect(dbURL).then(function(err, db) {
   if (err) {
@@ -37,56 +37,67 @@ mongoose.connect(dbURL).then(function(err, db) {
 });
 
 app.get("/", function(req, res) {
-  res.render("index");
+  res.render("profile");
 });
 
-app.post("/users", (req, res) => {
-  let newUser = new User(req.body);
-  newUser.save().then(savedUser => {
-    res.send({ status: "success", record: savedUser });
+app.post("/activities", (req, res) => {
+  let newActivity = new Activity(req.body);
+  newActivity.save().then(savedActivity => {
+    res.redirect("/");
+  });
+});
+app.get("/activities", function(req, res) {
+  Activity.find().then(function(foundActivities) {
+    console.log(req.session);
+    res.send(foundActivities);
   });
 });
 
-app.post("/add-stats/:activityid", function(req, res) {
-  //   res.send("hello");
-  User.findOne({ _id: req.session.userRequesting._id }).then(function(
-    foundUser
-  ) {
-    for (var i = 0; i < foundUser.activities.length; i++) {
-      if (foundUser.activities[i].id == req.params.activityid) {
-        console.log(foundUser.activities[i].title);
-        activity = foundUser.activities[i];
-        res.render("addStats", { activity: activity });
-      }
-    }
+app.get("/activities/:id", function(req, res) {
+  Activity.find({
+    _id: req.params.id
+  }).then(function(foundActivity) {
+    console.log(req.session);
+    res.send(foundActivity);
   });
 });
 
-app.post("/stats", function(req, res) {
-  User.findOne({ _id: req.session.userRequesting._id }).then(function(
-    foundUser
-  ) {
-    for (var i = 0; i < foundUser.activities.length; i++) {
-      if (foundUser.activities[i].id == activity.id) {
-        var save = foundUser.activities[i].Info.push(req.body);
-        foundUser.save().then(function(saved) {
-          res.send(saved);
-        });
-      }
-    }
+app.put("/activities/:id", function(req, res) {
+  Activity.update({ _id: req.params.id }, { title: req.params.title });
+});
+app.delete("/activity/:id", function(req, res) {
+  Activity.delete({ _id: req.params.id }).then(function(deletedActivity) {
+    console.log(req.session);
+    res.send("deleted activity");
   });
 });
 
-app.post("/activities/:userid", function(req, res) {
-  User.findOne({ _id: req.session.userRequesting._id }).then(function(
-    foundUser
-  ) {
-    var newActivity = foundUser.activities.push(req.body);
-    foundUser.save().then(function(savedActivity) {
-      res.send(savedActivity);
-    });
+app.post("/activities/:id/stats", function(req, res) {
+  Activity.update(
+    {
+      _id: req.params.id
+    },
+    { $push: { Info: { Date: req.body.Date, Stats: req.body.Stats } } },
+    { upsert: true }
+  ).then(function(updated) {
+    console.log(req.session);
+    res.send(updated);
   });
 });
+
+app.delete("/stats/:id/", function(req, res) {
+  Activity.update(
+    {
+      _id: req.params.id,
+      "Info.Date": req.body.Date
+    },
+    { $pull: { Info: { Date: req.body.Date } } }
+  ).then(function(deletedActivity) {
+    console.log(req.session);
+    res.send(deletedActivity);
+  });
+});
+
 app.listen(port, function() {
   console.log("server is running on", port);
 });
